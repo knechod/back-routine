@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15-Min Back Maintenance · B.01.01</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #f5f2ee;
+    --surface: #ffffff;
+    --ink: #2a2520;
+    --muted: #7a6f65;
+    --accent: #3d6b5a;
+    --accent-light: #d4e8e0;
+    --new-badge: #b85c2a;
+    --new-badge-bg: #fdeee5;
+    --rule: #e0d9d0;
+    --week-colors: #3d6b5a, #4a6080, #7a4f6d, #8a5a2a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  header h1 {
+    font-family: 'Spectral', serif;
+    font-weight: 300;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+
+  header .subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  header .meta {
+    margin-top: 0.9rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  header .meta span { display: flex; align-items: center; gap: 0.3rem; }
+
+  .version {
+    margin-top: 1rem;
+    font-size: 0.7rem;
+    color: #bbb;
+    letter-spacing: 0.05em;
+  }
+
+  /* SAFETY RULES */
+  .rules {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 2rem;
+    font-size: 0.83rem;
+    color: var(--accent);
+    line-height: 1.6;
+  }
+  .rules strong { display: block; margin-bottom: 0.2rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* DAILY WARMUP */
+  .daily-block {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 1.4rem 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--rule);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  .block-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+
+  .block-title {
+    font-family: 'Spectral', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 0.2rem;
+  }
+
+  .block-time {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.35rem 0;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checklist li input[type=checkbox] {
+    margin-top: 0.15rem;
+    accent-color: var(--accent);
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .checklist li.done span { text-decoration: line-through; color: var(--muted); }
+
+  /* WEEK TABS */
+  .week-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .week-tab {
+    padding: 0.45rem 1rem;
+    border-radius: 100px;
+    border: 1.5px solid var(--rule);
+    background: var(--surface);
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .week-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .week-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* WEEK PANELS */
+  .week-panel { display: none; }
+  .week-panel.active { display: block; }
+
+  .week-header {
+    margin-bottom: 1.2rem;
+  }
+
+  .week-title {
+    font-family: 'Spectral', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    margin-bottom: 0.2rem;
+  }
+
+  .week-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .new-badge {
+    display: inline-block;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--new-badge-bg);
+    color: var(--new-badge);
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  .exercise-card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 0.9rem;
+    border: 1px solid var(--rule);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  .exercise-card.is-new {
+    border-color: #e8c4ae;
+    background: #fffaf7;
+  }
+
+  .ex-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .ex-name {
+    font-family: 'Spectral', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+  }
+
+  .ex-time {
+    font-size: 0.75rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .ex-setup {
+    font-size: 0.78rem;
+    color: var(--muted);
+    background: #f7f5f2;
+    border-radius: 5px;
+    padding: 0.45rem 0.7rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .ex-setup strong { color: var(--ink); }
+
+  .cue {
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-style: italic;
+    margin-top: 0.6rem;
+  }
+
+  /* SAFETY CHECK */
+  .safety {
+    margin-top: 1.8rem;
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid var(--rule);
+  }
+
+  .safety-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.7rem;
+    font-weight: 500;
+  }
+
+  .safety .checklist li { font-size: 0.84rem; }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 1rem 0;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="subtitle">Inspire FTX · Spine-Safe</div>
+    <h1>Back Maintenance Routine</h1>
+    <div class="meta">
+      <span>⏱ 15 min · 3×/week</span>
+      <span>🧘 Warm-up daily</span>
+      <span>🎯 Prevent flare-ups</span>
+    </div>
+    <div class="version">B.01.01 — 4-Week Progressive Plan</div>
+  </header>
+
+  <div class="rules">
+    <strong>Rule</strong>
+    Pain-free only &nbsp;·&nbsp; Light weights &nbsp;·&nbsp; Slow control &nbsp;·&nbsp; Stop if sharp pain occurs
+  </div>
+
+  <!-- DAILY WARMUP -->
+  <div class="daily-block">
+    <div class="block-label">Every Day · 0–3 Minutes</div>
+    <div class="block-title">Warm-Up</div>
+    <div class="block-time">Do this every morning, even on rest days</div>
+    <ul class="checklist" id="warmup-list">
+      <li onclick="toggle(this)"><input type="checkbox"> <span>Standing pelvic tilts – 10 slow reps</span></li>
+      <li onclick="toggle(this)"><input type="checkbox"> <span>Shoulder rolls (backward) – 5 reps</span></li>
+      <li onclick="toggle(this)"><input type="checkbox"> <span>Gentle torso turns – 5 reps each side</span></li>
+    </ul>
+  </div>
+
+  <!-- WEEK TABS -->
+  <div class="week-tabs">
+    <button class="week-tab active" onclick="showWeek(1, this)">Week 1</button>
+    <button class="week-tab" onclick="showWeek(2, this)">Week 2</button>
+    <button class="week-tab" onclick="showWeek(3, this)">Week 3</button>
+    <button class="week-tab" onclick="showWeek(4, this)">Week 4</button>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="week-panel active" id="week-1">
+    <div class="week-header">
+      <div class="week-title">Week 1 — Foundation</div>
+      <div class="week-desc">Mon · Wed · Fri &nbsp;|&nbsp; Bodyweight only · Learn the movements · ~8 min total</div>
+    </div>
+
+    <div class="exercise-card is-new">
+      <div class="ex-header">
+        <div class="ex-name">Bird Dog <span class="new-badge">New</span></div>
+        <div class="ex-time">3–5 min</div>
+      </div>
+      <div class="ex-setup">Bodyweight · Floor</div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>6 reps – Left arm / Right leg (5-second hold)</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>6 reps – Right arm / Left leg (5-second hold)</span></li>
+      </ul>
+      <div class="cue">Cue: Slow and steady — no wobble</div>
+    </div>
+
+    <div class="exercise-card is-new">
+      <div class="ex-header">
+        <div class="ex-name">Reset <span class="new-badge">New</span></div>
+        <div class="ex-time">2 min</div>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Knee-to-chest stretch – 15–20 seconds each side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Slow breathing – 1 minute</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week-panel" id="week-2">
+    <div class="week-header">
+      <div class="week-title">Week 2 — Add Core Stability</div>
+      <div class="week-desc">Mon · Wed · Fri &nbsp;|&nbsp; Introduce first FTX exercise · ~12 min total</div>
+    </div>
+
+    <div class="exercise-card is-new">
+      <div class="ex-header">
+        <div class="ex-name">Pallof Press <span class="new-badge">New</span></div>
+        <div class="ex-time">3–6 min</div>
+      </div>
+      <div class="ex-setup">
+        <strong>FTX Setup:</strong> Pulley at chest height · Single D-handle · <strong>5–10 lb</strong>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>8 reps – Left side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>8 reps – Right side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Optional 2nd set</span></li>
+      </ul>
+      <div class="cue">Cue: Brace lightly and resist rotation</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Bird Dog</div>
+        <div class="ex-time">3–5 min</div>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>6 reps – Left arm / Right leg (5-second hold)</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>6 reps – Right arm / Left leg (5-second hold)</span></li>
+      </ul>
+      <div class="cue">Cue: Slow and steady — no wobble</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Reset</div>
+        <div class="ex-time">2 min</div>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Knee-to-chest stretch – 15–20 seconds each side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Slow breathing – 1 minute</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="week-panel" id="week-3">
+    <div class="week-header">
+      <div class="week-title">Week 3 — Add Posture Support</div>
+      <div class="week-desc">Mon · Wed · Fri &nbsp;|&nbsp; Second FTX machine exercise · ~14 min total</div>
+    </div>
+
+    <div class="exercise-card is-new">
+      <div class="ex-header">
+        <div class="ex-name">Seated Cable Row <span class="new-badge">New</span></div>
+        <div class="ex-time">6–9 min</div>
+      </div>
+      <div class="ex-setup">
+        <strong>FTX Setup:</strong> Pulley at mid-torso height · Two D-handles · <strong>10–20 lb per side</strong>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>10–12 reps</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Optional 2nd set</span></li>
+      </ul>
+      <div class="cue">Cue: Chest tall, squeeze shoulder blades</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Pallof Press</div>
+        <div class="ex-time">3–6 min</div>
+      </div>
+      <div class="ex-setup">
+        <strong>FTX Setup:</strong> Pulley at chest height · Single D-handle · 5–10 lb
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>8 reps – Left side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>8 reps – Right side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Optional 2nd set</span></li>
+      </ul>
+      <div class="cue">Cue: Brace lightly and resist rotation</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Bird Dog</div>
+        <div class="ex-time">3–5 min</div>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>6 reps – Left arm / Right leg (5-second hold)</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>6 reps – Right arm / Left leg (5-second hold)</span></li>
+      </ul>
+      <div class="cue">Cue: Slow and steady — no wobble</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Reset</div>
+        <div class="ex-time">2 min</div>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Knee-to-chest stretch – 15–20 seconds each side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Slow breathing – 1 minute</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WEEK 4 -->
+  <div class="week-panel" id="week-4">
+    <div class="week-header">
+      <div class="week-title">Week 4 — Full Routine</div>
+      <div class="week-desc">Mon · Wed · Fri &nbsp;|&nbsp; Complete 15-minute program</div>
+    </div>
+
+    <div class="exercise-card is-new">
+      <div class="ex-header">
+        <div class="ex-name">Straight-Arm Pulldown <span class="new-badge">New</span></div>
+        <div class="ex-time">9–12 min</div>
+      </div>
+      <div class="ex-setup">
+        <strong>FTX Setup:</strong> Pulley above head · Two D-handles · <strong>5–10 lb per side</strong>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>10–12 reps</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Optional 2nd set</span></li>
+      </ul>
+      <div class="cue">Cue: Pull to thighs, abs lightly braced</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Seated Cable Row</div>
+        <div class="ex-time">6–9 min</div>
+      </div>
+      <div class="ex-setup">
+        <strong>FTX Setup:</strong> Pulley at mid-torso height · Two D-handles · 10–20 lb per side
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>10–12 reps</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Optional 2nd set</span></li>
+      </ul>
+      <div class="cue">Cue: Chest tall, squeeze shoulder blades</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Pallof Press</div>
+        <div class="ex-time">3–6 min</div>
+      </div>
+      <div class="ex-setup">
+        <strong>FTX Setup:</strong> Pulley at chest height · Single D-handle · 5–10 lb
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>8 reps – Left side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>8 reps – Right side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Optional 2nd set</span></li>
+      </ul>
+      <div class="cue">Cue: Brace lightly and resist rotation</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Bird Dog</div>
+        <div class="ex-time">12–14 min</div>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>6 reps – Left arm / Right leg (5-second hold)</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>6 reps – Right arm / Left leg (5-second hold)</span></li>
+      </ul>
+      <div class="cue">Cue: Slow and steady — no wobble</div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">Reset</div>
+        <div class="ex-time">14–15 min</div>
+      </div>
+      <ul class="checklist">
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Knee-to-chest stretch – 15–20 seconds each side</span></li>
+        <li onclick="toggle(this)"><input type="checkbox"> <span>Slow breathing – 1 minute</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SAFETY CHECK -->
+  <div class="safety">
+    <div class="safety-title">Quick Safety Check — After Every Session</div>
+    <ul class="checklist">
+      <li onclick="toggle(this)"><input type="checkbox"> <span>No sharp pain during session</span></li>
+      <li onclick="toggle(this)"><input type="checkbox"> <span>No increase in pain afterward</span></li>
+      <li onclick="toggle(this)"><input type="checkbox"> <span>Back feels same or better next morning</span></li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+function showWeek(n, btn) {
+  document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.week-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('week-' + n).classList.add('active');
+  btn.classList.add('active');
+  // Reset checkboxes in newly shown week
+}
+
+function toggle(li) {
+  const cb = li.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  li.classList.toggle('done', cb.checked);
+}
+</script>
+</body>
+</html>
